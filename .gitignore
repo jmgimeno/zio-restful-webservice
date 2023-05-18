@@ -42,5 +42,5 @@ bin/
 # general
 *.class
 
-# history
-.history
+# scala-cli
+.scala-build
