@@ -10,3 +10,16 @@ POST http://localhost:8080/users
 
 ###
 
+GET http://localhost:8080/users/6aca8250-e236-4f0b-8c1b-f9a3671cd2b8
+
+###
+
+POST http://localhost:8080/users
+
+{
+    "name": "John", "age": 35
+}
+
+###
+
+GET http://localhost:8080/user

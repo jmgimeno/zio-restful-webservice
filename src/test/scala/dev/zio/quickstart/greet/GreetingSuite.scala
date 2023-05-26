@@ -6,7 +6,8 @@ import zhttp.http.*
 
 object GreetingSuite extends ZIOSpecDefault:
 
-  val greetingApp = GreetingApp()
+  // Request => ZIO[Any, Option[Nothing], Response]
+  val greetingApp: Http[Any, Nothing, Request, Response] = GreetingApp()
 
   val spec =
     suite("GreetingApp")(
@@ -35,7 +36,7 @@ object GreetingSuite extends ZIOSpecDefault:
           yield assertTrue(body == s"Hello $name!")
         }
       },
-      test("/greet?name=:name1&:name2") {
+      test("/greet?name=:name1&name=:name2") {
         check(Gen.string, Gen.string) { (name1, name2) =>
           for
             url <- ZIO.fromEither(
