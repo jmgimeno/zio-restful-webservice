@@ -9,7 +9,7 @@ object GreetingSuite extends ZIOSpecDefault:
   // Request => ZIO[Any, Option[Nothing], Response]
   val greetingApp: Http[Any, Nothing, Request, Response] = GreetingApp()
 
-  val spec =
+  val spec: Spec[Any, Any] =
     suite("GreetingApp")(
       test("/greet") {
         for

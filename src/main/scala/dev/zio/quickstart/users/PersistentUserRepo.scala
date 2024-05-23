@@ -1,7 +1,5 @@
 package dev.zio.quickstart.users
 
-import io.getquill.context.ZioJdbc.DataSourceLayer
-import io.getquill.{Escape, H2ZioJdbcContext}
 import io.getquill.jdbczio.Quill
 import io.getquill.*
 import zio.*
@@ -13,9 +11,9 @@ final case class UserTable(uuid: UUID, name: String, age: Int)
 
 final case class PersistentUserRepo(ds: DataSource) extends UserRepo:
 
-  val ctx = new H2ZioJdbcContext(Escape)
+  private val ctx = new H2ZioJdbcContext(Escape)
 
-  import ctx._
+  import ctx.*
 
   def register(user: User): Task[String] = {
     for

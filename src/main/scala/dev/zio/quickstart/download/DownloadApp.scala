@@ -11,6 +11,7 @@ import zio.stream.ZStream
  *   - Does not require any environment
  */
 object DownloadApp:
+  
   def apply(): Http[Any, Throwable, Request, Response] =
     Http.collectHttp[Request] {
       // GET /download
@@ -19,7 +20,7 @@ object DownloadApp:
         Http.fromStream(ZStream.fromResource(fileName)).setHeaders(
           Headers(
             ("Content-Type", "application/octet-stream"),
-            ("Content-Disposition", s"attachment; filename=${fileName}")
+            ("Content-Disposition", s"attachment; filename=$fileName")
           )
         )
 
@@ -33,7 +34,7 @@ object DownloadApp:
         ).setHeaders(
           Headers(
             ("Content-Type", "application/octet-stream"),
-            ("Content-Disposition", s"attachment; filename=${file}")
+            ("Content-Disposition", s"attachment; filename=$file")
           )
         )
     }

@@ -12,8 +12,9 @@ import zio.json.*
 object UserApp:
   def apply(): Http[UserRepo, Throwable, Request, Response] =
     Http.collectZIO[Request] {
+
       // POST /users -d '{"name": "John", "age": 35}'
-      case req @ (Method.POST -> !! / "users") =>
+      case req @ Method.POST -> !! / "users" =>
         for
           u <- req.bodyAsString.map(_.fromJson[User])
           r <- u match
@@ -39,6 +40,7 @@ object UserApp:
             case None =>
               Response.status(Status.NotFound)
           }
+
       // GET /users
       case Method.GET -> !! / "users" =>
         UserRepo.users.map(users => Response.json(users.toJson))
