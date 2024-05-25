@@ -1,5 +1,7 @@
 package dev.zio.quickstart.users
 
+import io.getquill.context.ZioJdbc.DataSourceLayer
+import io.getquill.{Escape, H2ZioJdbcContext}
 import io.getquill.jdbczio.Quill
 import io.getquill.*
 import zio.*
@@ -7,15 +9,14 @@ import zio.*
 import java.util.UUID
 import javax.sql.DataSource
 
-final case class UserTable(uuid: UUID, name: String, age: Int)
+case class UserTable(uuid: UUID, name: String, age: Int)
 
-final case class PersistentUserRepo(ds: DataSource) extends UserRepo:
+case class PersistentUserRepo(ds: DataSource) extends UserRepo:
+  val ctx = new H2ZioJdbcContext(Escape)
 
-  private val ctx = new H2ZioJdbcContext(Escape)
+  import ctx._
 
-  import ctx.*
-
-  def register(user: User): Task[String] = {
+  override def register(user: User): Task[String] = {
     for
       id <- Random.nextUUID
       _ <- ctx.run {
@@ -28,7 +29,7 @@ final case class PersistentUserRepo(ds: DataSource) extends UserRepo:
     yield id.toString
   }.provide(ZLayer.succeed(ds))
 
-  def lookup(id: String): Task[Option[User]] =
+  override def lookup(id: String): Task[Option[User]] =
     ctx
       .run {
         quote {
@@ -40,7 +41,7 @@ final case class PersistentUserRepo(ds: DataSource) extends UserRepo:
       .provide(ZLayer.succeed(ds))
       .map(_.headOption)
 
-  def users: Task[List[User]] =
+  override def users: Task[List[User]] =
     ctx
       .run {
         quote {
@@ -51,7 +52,5 @@ final case class PersistentUserRepo(ds: DataSource) extends UserRepo:
 
 object PersistentUserRepo:
   def layer: ZLayer[Any, Throwable, PersistentUserRepo] =
-    ZLayer.make[PersistentUserRepo](
-      Quill.DataSource.fromPrefix("UserApp"),
+    Quill.DataSource.fromPrefix("UserApp") >>>
       ZLayer.fromFunction(PersistentUserRepo(_))
-    )

@@ -1,24 +1,28 @@
 package dev.zio.quickstart
 
-import dev.zio.quickstart.counter.CounterApp
-import dev.zio.quickstart.download.DownloadApp
-import dev.zio.quickstart.greet.GreetingApp
-import dev.zio.quickstart.users.{InMemoryUserRepo, PersistentUserRepo, UserApp}
-import zhttp.service.Server
+import dev.zio.quickstart.counter.CounterRoutes
+import dev.zio.quickstart.download.DownloadRoutes
+import dev.zio.quickstart.greet.GreetingRoutes
+import dev.zio.quickstart.users.{
+  InmemoryUserRepo,
+  PersistentUserRepo,
+  UserRoutes
+}
 import zio.*
+import zio.http.*
 
 object MainApp extends ZIOAppDefault:
-
-  def run: ZIO[Environment & ZIOAppArgs & Scope, Any, Any] =
+  def run =
     Server
-      .start(
-        port = 8080,
-        http = GreetingApp() ++ DownloadApp() ++ CounterApp() ++ UserApp()
+      .serve(
+        GreetingRoutes() ++ DownloadRoutes() ++ CounterRoutes() ++ UserRoutes()
       )
       .provide(
+        Server.defaultWithPort(8080),
+
         // An layer responsible for storing the state of the `counterApp`
         ZLayer.fromZIO(Ref.make(0)),
 
         // To use the persistence layer, provide the `PersistentUserRepo.layer` layer instead
-        InMemoryUserRepo.layer
+        InmemoryUserRepo.layer
       )

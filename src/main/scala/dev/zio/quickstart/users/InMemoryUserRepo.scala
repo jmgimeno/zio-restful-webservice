@@ -1,7 +1,9 @@
 package dev.zio.quickstart.users
 import zio.*
 
-final case class InMemoryUserRepo(map: Ref[Map[String, User]]) extends UserRepo:
+import scala.collection.mutable
+
+case class InmemoryUserRepo(map: Ref[Map[String, User]]) extends UserRepo:
   def register(user: User): UIO[String] =
     for
       id <- Random.nextUUID.map(_.toString)
@@ -14,10 +16,9 @@ final case class InMemoryUserRepo(map: Ref[Map[String, User]]) extends UserRepo:
   def users: UIO[List[User]] =
     map.get.map(_.values.toList)
 
-object InMemoryUserRepo {
-  def layer: ZLayer[Any, Nothing, InMemoryUserRepo] =
+object InmemoryUserRepo {
+  def layer: ZLayer[Any, Nothing, InmemoryUserRepo] =
     ZLayer.fromZIO(
-      for ref <- Ref.make(Map.empty[String, User])
-      yield InMemoryUserRepo(ref)
+      Ref.make(Map.empty[String, User]).map(new InmemoryUserRepo(_))
     )
 }
